@@ -1,0 +1,37 @@
+name: Daily Stock Data ETL
+
+# Trigger the workflow on a schedule
+on:
+  schedule:
+    # Run at 6:00 AM UTC every day
+    - cron: '0 6 * * *'
+  # Allows you to run it manually from the Actions tab for testing
+  workflow_dispatch:
+
+jobs:
+  run_etl:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Download your code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Install Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    # 3. Install libraries (Pandas, yfinance, etc.)
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install python-dotenv
+
+    # 4. Run the script!
+    - name: Run ETL Script
+      env:
+        # We pass the secret from GitHub to the script here
+        DB_CONNECTION_URL: ${{ secrets.DB_CONNECTION_URL }}
+      run: python etl_pipeline.py
